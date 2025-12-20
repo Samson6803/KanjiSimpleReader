@@ -1,4 +1,6 @@
-import os, re
+import os, re, argparse
+
+parser = argparse.ArgumentParser()
 
 def clearTerminal():
     os.system('clear')
@@ -31,14 +33,14 @@ def askUserForKanjisInput():
             elif response == 'n':
                 break
 
-def parseKanjiFile(kanjiNumber: int):
+def parseKanjiFile(kanjiNumber: int, kanjisPath: str):
     kanjiNumberText = str(kanjiNumber)
     numberOfDigits = len(kanjiNumberText)
 
     for x in range(numberOfDigits, 4):
         kanjiNumberText = '0' + kanjiNumberText
     
-    fileLines = open(f'./kanjis/{kanjiNumberText}.md', 'r').readlines()
+    fileLines = open(f'{kanjisPath}/{kanjiNumberText}.md', 'r').readlines()
 
     kanjiLine = next((s for s in fileLines if 'kanji: ' in s), None)
     kanji = re.search(r"kanji:\s*(.+)", kanjiLine).group(1)
@@ -46,6 +48,10 @@ def parseKanjiFile(kanjiNumber: int):
     
 
 if __name__ == '__main__':
+    parser.add_argument('--kanjisPath', action="store", dest='kanjisPath', required=True)
+    args = parser.parse_args()
+    kanjisPath = args.kanjisPath 
+
     firstKanjiNumber, lastKanjiNumber = askUserForKanjisInput()
     print(f'Chosen range is {firstKanjiNumber} and {lastKanjiNumber}... [press any key]')
     input()
@@ -53,7 +59,7 @@ if __name__ == '__main__':
     with open("cards.md", "w", encoding="utf-8") as file:
         clearTerminal()
         for x in range(firstKanjiNumber, lastKanjiNumber + 1):
-            kanji = parseKanjiFile(x)
+            kanji = parseKanjiFile(x, kanjisPath)
             print(f'Kanji: {kanji}, number: {x}')
             print('Type translation...')
             word = input()
